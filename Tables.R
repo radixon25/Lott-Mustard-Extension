@@ -1,7 +1,7 @@
 
 #import data
 state_data <-
-  read.csv(here("Raw Data","state_lvl.csv"))%>%
+  read.csv('C:/Users/rasha_um7aj52/OneDrive/Desktop/Lott and Mustard Extension/Raw Data/state_lvl.csv')%>%
   dplyr::filter(1976<year & 1993 > year)
 
 #Table 1 (Create Rollout Group Table)
