@@ -1,11 +1,10 @@
 
-
 #import data
-state_data <-
-  read.csv(here("Raw Data","state_lvl.csv"))%>%
+state_data <- read.csv(here("Raw Data","state_lvl.csv"))%>%
   dplyr::filter(1976<year & 1993 > year)
 #Storing Independent Variables in List
-select_indep <- state_data[ , c('lmur','lvio','laga','lrap','lbur','lpro','laut')]
+select_indep <- state_data[ , c('lmur','lvio','laga','lrap','lbur','lpro','laut','llar')]
+select_arr <- state_data[ , c('aomur','aovio','aoaga','aorap','aobur','aopro','aoaut','aolar')]
 #Dummy Model TWFE
 
 for (i in 1:length(select_indep)){
@@ -19,9 +18,10 @@ for (i in 1:length(select_indep)){
 dummy_reg_out <- stargazer(dummy_lmur,dummy_lvio,dummy_laga,dummy_lrap,dummy_lbur,dummy_lpro,dummy_laut)
 #Table 3(Table 8a in Donohue) Regression UNWEIGHTED
 
+
 for (i in 1:length(select_indep)) {
   nam = paste('full_',names(select_indep)[i],sep= "")
-  frmla = as.formula(paste(names(select_indep[i]), '~ shalll + aovio + rpcpi + rpcim + rpcui  + rpcrpo + density + ppwm1019 + ppwm2029 + ppwm3039 + ppwm4049 + ppwm5064 + ppwm65o + ppbm1019 + ppbm2029 + ppbm3039 + ppbm4049 + ppbm5064 + ppbm65o + ppwf1019 + ppwf2029 + ppwf3039 + ppwf4049 + ppwf5064 + ppwf65o + ppbf1019 + ppbf2029 + ppbf3039 + ppbf4049 + ppbf5064 + ppbf65o + ppnm1019 + ppnm2029 + ppnm3039 + ppnm4049 + ppnm5064 + ppnm65o + ppnf1019 + ppnf2029 + ppnf3039 + ppnf4049 + ppnf5064 + ppnf65o + popstate + factor(year) + factor(state)'))
+  frmla = as.formula(paste(paste(names(select_indep[i]), '~ shalll +'),paste(names(select_arr[i]),'  + rpcpi + rpcim + rpcui  + rpcrpo + density + ppwm1019 + ppwm2029 + ppwm3039 + ppwm4049 + ppwm5064 + ppwm65o + ppbm1019 + ppbm2029 + ppbm3039 + ppbm4049 + ppbm5064 + ppbm65o + ppwf1019 + ppwf2029 + ppwf3039 + ppwf4049 + ppwf5064 + ppwf65o + ppbf1019 + ppbf2029 + ppbf3039 + ppbf4049 + ppbf5064 + ppbf65o + ppnm1019 + ppnm2029 + ppnm3039 + ppnm4049 + ppnm5064 + ppnm65o + ppnf1019 + ppnf2029 + ppnf3039 + ppnf4049 + ppnf5064 + ppnf65o + popstate + factor(year) + factor(state)')))
   x = lm(frmla,data = state_data)
   assign(nam,x)
 }
@@ -51,7 +51,7 @@ c_blvio <- sum(blaga$estimate * blmur$weight)
 c_blaga <- sum(blaga$estimate * blmur$weight)
 c_blrap <- sum(blrap$estimate * blrap$weight)
 c_blpro <- sum(blpro$estimate * blpro$weight)
-c_blaut <- sum(blaut$estimate * blaur$weight)
+c_blaut <- sum(blaut$estimate * blaut$weight)
 #Bacon Decomp table
 
 # Callaway Sant'anna
@@ -74,7 +74,7 @@ for (i in 1:length(select_indep)) {
   x <- att_gt(yname = names(select_indep)[i],tname = 'year',idname = 'fipsstat', gname = 'Group', xformla = ~rpcpi + lpolicerate, data= state_data )
   assign(nam, x)
 }
-
+cs_laga
 
 
 
