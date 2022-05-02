@@ -3,13 +3,13 @@
 state_data <- read.csv(here("Raw Data","state_lvl.csv"))%>%
   dplyr::filter(1976<year & 1993 > year)
 #Storing Independent Variables in List
-select_indep <- state_data[ , c('lmur','lvio','laga','lrap','lbur','lpro','laut','llar')]
+select_dep <- state_data[ , c('lmur','lvio','laga','lrap','lbur','lpro','laut','llar')]
 select_arr <- state_data[ , c('aomur','aovio','aoaga','aorap','aobur','aopro','aoaut','aolar')]
 #Dummy Model TWFE
 
-for (i in 1:length(select_indep)){
-  nam = paste('dummy_',names(select_indep)[i],sep= "")
-  frmla = as.formula(paste(names(select_indep[i]),'~ shalll'))
+for (i in 1:length(select_dep)){
+  nam = paste('dummy_',names(select_dep)[i],sep= "")
+  frmla = as.formula(paste(names(select_dep[i]),'~ shalll'))
   x = plm(frmla, data= state_data, index = c('state','year'), model = 'within',effect = 'twoways')
   assign(nam,x)
 }
@@ -19,9 +19,9 @@ dummy_reg_out <- stargazer(dummy_lmur,dummy_lvio,dummy_laga,dummy_lrap,dummy_lbu
 #Table 3(Table 8a in Donohue) Regression UNWEIGHTED
 
 
-for (i in 1:length(select_indep)) {
-  nam = paste('full_',names(select_indep)[i],sep= "")
-  frmla = as.formula(paste(paste(names(select_indep[i]), '~ shalll +'),paste(names(select_arr[i]),'  + rpcpi + rpcim + rpcui  + rpcrpo + density + ppwm1019 + ppwm2029 + ppwm3039 + ppwm4049 + ppwm5064 + ppwm65o + ppbm1019 + ppbm2029 + ppbm3039 + ppbm4049 + ppbm5064 + ppbm65o + ppwf1019 + ppwf2029 + ppwf3039 + ppwf4049 + ppwf5064 + ppwf65o + ppbf1019 + ppbf2029 + ppbf3039 + ppbf4049 + ppbf5064 + ppbf65o + ppnm1019 + ppnm2029 + ppnm3039 + ppnm4049 + ppnm5064 + ppnm65o + ppnf1019 + ppnf2029 + ppnf3039 + ppnf4049 + ppnf5064 + ppnf65o + popstate + factor(year) + factor(state)')))
+for (i in 1:length(select_dep)) {
+  nam = paste('full_',names(select_dep)[i],sep= "")
+  frmla = as.formula(paste(paste(names(select_dep[i]), '~ shalll +'),paste(names(select_arr[i]),'  + rpcpi + rpcim + rpcui  + rpcrpo + density + ppwm1019 + ppwm2029 + ppwm3039 + ppwm4049 + ppwm5064 + ppwm65o + ppbm1019 + ppbm2029 + ppbm3039 + ppbm4049 + ppbm5064 + ppbm65o + ppwf1019 + ppwf2029 + ppwf3039 + ppwf4049 + ppwf5064 + ppwf65o + ppbf1019 + ppbf2029 + ppbf3039 + ppbf4049 + ppbf5064 + ppbf65o + ppnm1019 + ppnm2029 + ppnm3039 + ppnm4049 + ppnm5064 + ppnm65o + ppnf1019 + ppnf2029 + ppnf3039 + ppnf4049 + ppnf5064 + ppnf65o + popstate + factor(year) + factor(state)')))
   x = lm(frmla,data = state_data)
   assign(nam,x)
 }
@@ -33,9 +33,9 @@ full_wls_wstate
 
 #Bacon Decomposition
 x = NA
-for(i in 1:length(select_indep))  {
-  nam = paste('b',names(select_indep)[i],sep= "")
-  frmla = as.formula(paste(names(select_indep[i]),'~ shalll'))
+for(i in 1:length(select_dep))  {
+  nam = paste('b',names(select_dep)[i],sep= "")
+  frmla = as.formula(paste(names(select_dep[i]),'~ shalll'))
   x = bacon(frmla, state_data, id_var = 'state',time_var = 'year')
   x$weighted_est <- x$estimate * x$weight
   x = x %>%
@@ -69,12 +69,12 @@ state_data <- state_data %>%
   rename(year = year.x)
 
 #Callaway Sant'anna w/ 2 coef, no anticipation
-for (i in 1:length(select_indep)) {
-  nam <- paste("cs_",names(select_indep)[i], sep = "")
-  x <- att_gt(yname = names(select_indep)[i],tname = 'year',idname = 'fipsstat', gname = 'Group', xformla = ~rpcpi + lpolicerate, data= state_data )
+for (i in 1:length(select_dep)) {
+  nam <- paste("cs_",names(select_dep)[i], sep = "")
+  x <- att_gt(yname = names(select_dep)[i],tname = 'year',idname = 'fipsstat', gname = 'Group', xformla = ~rpcpi + density, data= state_data )
   assign(nam, x)
 }
-cs_laga
+
 
 
 
@@ -112,10 +112,10 @@ state_data <- state_data %>%
     lag_13 = case_when(time_diff == 13 ~ 1, TRUE ~ 0),
     lag_14 = case_when(time_diff == 14 ~ 1, TRUE ~ 0)
   )
-for (i in 1:length(select_indep)){
+for (i in 1:length(select_dep)){
   
 es_equation <- as.formula(
-        paste(paste(names(select_indep)[i],'~ +',sep = ""),
+        paste(paste(names(select_dep)[i],'~ +',sep = ""),
         paste(paste(
           paste(paste("lead_",1:14,sep = ""), collapse = " + "),
           paste(paste("lag_",1:14,sep = ""),collapse = " + "), sep = " + "),
@@ -131,7 +131,7 @@ es_plot <- tibble(
   mean  = c(coef(es_reg)[x_axis],0),
   label = c(-14:14)
 )
-nam <- paste("es_",names(select_indep)[i], sep = "")
+nam <- paste("es_",names(select_dep)[i], sep = "")
 es_plot <- es_plot %>%
   ggplot(aes(x = label, y = mean,
              ymin = mean-1.96*sd, 
@@ -139,7 +139,7 @@ es_plot <- es_plot %>%
   geom_pointrange() +
   theme_minimal() +
   xlab("Years from Right-to-Carry Law") +
-  ylab(names(select_indep[i])) +
+  ylab(names(select_dep[i])) +
   geom_hline(yintercept = 0,
              linetype = "dashed") +
   geom_vline(xintercept = 0,
