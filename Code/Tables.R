@@ -19,3 +19,22 @@ summary_stats <- stargazer(state_means)
 summary_stats
 
 
+#Table 3 (TWFE w/ controls)
+full_reg_output <- stargazer(full_lmur,full_lvio,full_laga,full_lpro,full_laut, omit = c('state','year'))
+
+#Table 4 (Bacon Decomp)
+for (i in 1:length(b_list)){
+  x<- xtable(as.data.frame(b_list[i]))
+ print(x)
+}
+
+#Event Study Graphs
+es_list <- list(es_laga,es_laut,es_lbur,es_llar,es_lmur,es_lpro,es_lrap,es_lvio)
+for (i in 1:length(es_list)){
+  print(es_list[i])
+}
+
+
+
+
+

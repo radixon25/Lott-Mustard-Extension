@@ -26,10 +26,6 @@ for (i in 1:length(select_dep)) {
   assign(nam,x)
 }
 
-full_reg_output <- stargazer(full_lmur,full_lvio,full_laga,full_lpro,full_laut, omit = c('state','year'))
-#Table 8b Don: Dummy Regression w/ state trend
-full_wls_wstate <- summary(lm_robust(lmur ~ shalll + aovio + rpcpi + rpcim + rpcui  + rpcrpo + density + ppwm1019 + ppwm2029 + ppwm3039 + ppwm4049 + ppwm5064 + ppwm65o + ppbm1019 + ppbm2029 + ppbm3039 + ppbm4049 + ppbm5064 + ppbm65o + ppwf1019 + ppwf2029 + ppwf3039 + ppwf4049 + ppwf5064 + ppwf65o + ppbf1019 + ppbf2029 + ppbf3039 + ppbf4049 + ppbf5064 + ppbf65o + ppnm1019 + ppnm2029 + ppnm3039 + ppnm4049 + ppnm5064 + ppnm65o + ppnf1019 + ppnf2029 + ppnf3039 + ppnf4049 + ppnf5064 + ppnf65o +yr78 + yr79 + yr80 + yr81 + yr82 + yr83 + yr84 + yr85 + yr86 + yr87 + yr88 + yr89 + yr90 + yr91 + yr92+ trndAK+trndAL+trndAZ+trndAR+trndCA+trndCO+trndCT + trndDC+trndDE+trndFL+trndGA+trndHI+trndIA+trndID+trndIL+trndIN+trndKS+trndKY+trndLA+trndMA+trndMD+trndME+trndMI+trndMN+trndMO+trndMS+trndMT+trndNC+trndND+trndNE+trndNH+trndNJ+trndNM+trndNV+trndNY+trndOH+trndOK+trndOR+trndPA+trndRI+trndSC+trndSD+trndTN+trndTX+trndUT+trndVA+trndVT+trndWA+trndWI+trndWV+trndWY+ popstate , data = state_data,clusters = fipsstat, weight = popstate, fixed_effects =  stnumber, se_type = "stata"))
-full_wls_wstate
 
 #Bacon Decomposition
 x = NA
@@ -52,6 +48,17 @@ c_blaga <- sum(blaga$estimate * blmur$weight)
 c_blrap <- sum(blrap$estimate * blrap$weight)
 c_blpro <- sum(blpro$estimate * blpro$weight)
 c_blaut <- sum(blaut$estimate * blaut$weight)
+
+blmur[nrow(blmur)+1,] <- list('TWFE Log Murder Rate', NA,c_blmur)
+blvio[nrow(blvio)+1,] <- list('TWFE Log Violent Crime Rate',NA,c_blvio)
+blaga[nrow(blaga)+1,] <- list('TWFE Log Agg. Assault Rate',NA,c_blaga)
+blrap[nrow(blrap)+1,] <- list('TWFE Log Rape Crime Rate',NA,c_blrap)
+blpro[nrow(blpro)+1,] <- list('TWFE Log Property Crime Rate',NA,c_blpro)
+blaut[nrow(blaut)+1,] <- list('TWFE Log Auto Theft Rate',NA,c_blaut)
+
+b_list <- list(blmur,blvio,blaga,blrap,blpro,blaut)
+
+
 #Bacon Decomp table
 
 # Callaway Sant'anna
@@ -60,6 +67,7 @@ fil_state_reg <- state_data %>%
   subset(shalll == 1) %>%
   group_by(state)%>%
   summarize(year = min(year))
+
 
 #Adding Group to state_data
 state_data <- merge(state_data,fil_state_reg,'state',all.x= TRUE)
